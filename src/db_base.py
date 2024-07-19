@@ -14,7 +14,10 @@ class DBbase:
         self._cursor = self._conn.cursor()
 
     def execute_script(self, sql_string):
-        self._cursor.executescript(sql_string)
+        try:
+            self._cursor.executescript(sql_string)
+        except sqlite3.Error as e:
+            print(f"An error occured: {e}")
 
     @property
     def get_cursor(self):
