@@ -16,7 +16,7 @@ class DBbase:
     def execute_script(self, sql_string):
         try:
             self._cursor.executescript(sql_string)
-        except sqlite3.Error as e:
+        except Exception as e:
             print(f"An error occured: {e}")
 
     @property
