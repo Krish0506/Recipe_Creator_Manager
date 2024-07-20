@@ -1,6 +1,7 @@
 import csv
 
 import db_base as db
+
 class Ingredients:
     def __init__(self, row):
         self.id = row[0]
