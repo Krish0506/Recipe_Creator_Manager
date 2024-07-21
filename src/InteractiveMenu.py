@@ -17,6 +17,8 @@ class InteractiveMenu:
         print("3. Add Ingredients to Recipe")
         print("4. View Ingredients for a Recipe")
         print("5. View Recipe by Ingredients")
+        # 7 update
+        # 8 delete
         print("6. Exit")
         choice = input("Enter your choice: ")
         return choice
