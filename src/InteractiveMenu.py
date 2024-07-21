@@ -2,6 +2,7 @@ from recipe import RecipeDb, Recipe
 from ingredients import IngredientsDb
 from user import User, UserDb
 
+
 class InteractiveMenu:
     def __init__(self):
         self.recipe_db = RecipeDb("RecipeManager.sqlite")
@@ -9,7 +10,7 @@ class InteractiveMenu:
         self.user_db = UserDb("RecipeManager.sqlite")
         # self.recipe_db.reset_or_create_db()
         # self.ingredients_db.reset_or_create_db()
-    
+
     def display_menu(self):
         print("\nRecipe Creator Menu:")
         print("1. Add New Recipe")
@@ -17,9 +18,9 @@ class InteractiveMenu:
         print("3. Add Ingredients to Recipe")
         print("4. View Ingredients for a Recipe")
         print("5. View Recipe by Ingredients")
-        # 7 update
-        # 8 delete
-        print("6. Exit")
+        print("6. Update Recipe")
+        print("7. Delete Recipe")
+        print("8. Exit")
         choice = input("Enter your choice: ")
         return choice
 
@@ -31,7 +32,7 @@ class InteractiveMenu:
         print("4. Exit")
         choice = input("Enter your choice: ")
         return choice
-    
+
     def add_new_recipe(self):
         recipe_name = input("Enter the recipe name: ")
         servings = int(input("Enter the number of servings: "))
@@ -69,8 +70,7 @@ class InteractiveMenu:
         except Exception as e:
             print(f"Error fetching recipes: {e}")
 
-    def add_ingredients_to_recipe(self, last_id = None):
-
+    def add_ingredients_to_recipe(self, last_id=None):
         recipe_id = int(input("Enter the recipe ID to add ingredients to: ")) if not last_id else last_id
         while True:
             ingredient = input("Enter the ingredient or exit: ")
@@ -92,7 +92,6 @@ class InteractiveMenu:
 
     def view_ingredients_for_recipe(self):
         recipe_id = int(input("Enter the recipe ID to view ingredients: "))
-        
         try:
             self.ingredients_db.get_cursor.execute("SELECT * FROM Ingredients WHERE recipe_id = ?", (recipe_id,))
             ingredients = self.ingredients_db.get_cursor.fetchall()
@@ -101,6 +100,37 @@ class InteractiveMenu:
         except Exception as e:
             print(f"Error fetching ingredients: {e}")
 
+    def update_recipe(self):
+        recipe_id = int(input("Enter the recipe ID to update: "))
+        recipe_name = input("Enter the new recipe name: ")
+        servings = int(input("Enter the new number of servings: "))
+        cuisine = input("Enter the new cuisine: ")
+        course = input("Enter the new course (e.g., Appetizer, Main Course, Dessert): ")
+
+        try:
+            self.recipe_db.get_cursor.execute(
+                """
+                UPDATE Recipe
+                SET recipe_name = ?, servings = ?, cuisine = ?, course = ?
+                WHERE id = ?
+                """, (recipe_name, servings, cuisine, course, recipe_id)
+            )
+            self.recipe_db.get_connection.commit()
+            print("Recipe updated successfully!")
+        except Exception as e:
+            print(f"Error updating recipe: {e}")
+
+    def delete_recipe(self):
+        recipe_id = int(input("Enter the recipe ID to delete: "))
+
+        try:
+            self.recipe_db.get_cursor.execute("DELETE FROM Recipe WHERE id = ?", (recipe_id,))
+            self.recipe_db.get_connection.commit()
+            self.ingredients_db.get_cursor.execute("DELETE FROM Ingredients WHERE recipe_id = ?", (recipe_id,))
+            self.ingredients_db.get_connection.commit()
+            print("Recipe and its ingredients deleted successfully!")
+        except Exception as e:
+            print(f"Error deleting recipe: {e}")
 
     def run(self):
         print("************************ Login Page ************************")
@@ -136,6 +166,10 @@ class InteractiveMenu:
             elif choice == "5":
                 self.recipes_by_ingredients()
             elif choice == '6':
+                self.update_recipe()
+            elif choice == '7':
+                self.delete_recipe()
+            elif choice == '8':
                 self.recipe_db.close_db()
                 self.ingredients_db.close_db()
                 print("Exiting the program. Goodbye!")
@@ -157,8 +191,6 @@ class InteractiveMenu:
                 self.run()
             else:
                 print("Invalid choice. Please try again.")
-
-
 
 
 if __name__ == "__main__":
